@@ -1,0 +1,45 @@
+# Landing Zone & Sentinel Deployment
+
+Dieses Projekt richtet sich nach den Prinzipien des CAF Enterprise Scale von Microsoft.  
+Zentrale Bestandteile:
+
+1. **CAF Enterprise Scale Module** (in `main.tf`)
+   - Erstellt die Management-Gruppen und Basiskonfiguration (Log Analytics, Sentinel, Policies, etc.)
+
+2. **Resource Group** (in `resources/resource_group.tf`)
+   - `rg-management-<root_id>` dient als Sammelbecken für SIEM-, Logging- und Governance-Ressourcen.
+
+3. **Log Analytics Workspace** (in `resources/log_analytics.tf`)
+   - Standard-Retention: 90 Tage. Erhöht von ehemals 30 Tagen.
+
+4. **Storage Account** (in `resources/storage.tf`)
+   - Gedacht als Beispiel für eine zukünftige Langzeitarchivierung via Data Export (Preview).
+
+5. **Microsoft Sentinel** (in `resources/sentinel.tf`)
+   - Onboarding auf den Log Analytics Workspace.
+   - Beispiel-Alert bei hohem Datenvolumen.
+
+6. **Policies** (in `resources/policy_definitions.tf`)
+   - Restrict Location & Tagging.
+
+7. **Private Endpoint** (in `resources/private_endpoint.tf`)
+   - Ermöglicht privaten Zugriff auf das Log Analytics Workspace, anstatt über das öffentliche Internet.
+
+## Wichtige Hinweise
+
+- **Longterm-Archivierung**:  
+  Der Storage Account ist ein Platzhalter. Für automatisches Verschieben von Daten kannst du [Log Analytics Data Export (Preview)](https://learn.microsoft.com/azure/azure-monitor/logs/logs-data-export?tabs=portal) verwenden.
+
+- **Sentinel-Funktionen**:  
+  Weitergehende Features (Workbooks, Watchlists, UEBA) erfordern ggf. den [AzAPI Provider](https://registry.terraform.io/providers/Azure/azapi/latest) oder manuelle Schritte im Azure-Portal.
+
+- **Alert Action Groups**:  
+  Das Beispiel für `azurerm_monitor_scheduled_query_rules_alert` nutzt eine fiktive Action Group (`.../actionGroups/example`). Du musst hierfür eine echte Action Group anlegen oder eine bereits existierende Referenz verwenden.
+
+- **Private Endpoint**:  
+  Stelle sicher, dass dein Subnetz korrekt konfiguriert ist (NSG, Delegation, IPs). Der Wert in `subnet_id` ist nur ein Platzhalter.
+
+- **Policy Assignments**:  
+  Sind hier auf RG-Ebene gebunden. Bei Bedarf kannst du diese auf Subscription- oder Management Group-Ebene erweitern.
+
+
